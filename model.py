@@ -26,7 +26,7 @@ class pdt_recommendation():
         
         sentiment_score= id_name_sent.loc[id_name_sent['id']== pdt_id, 'overall_sentiment'].values[0]
         
-        return sentiment_score
+        return (sentiment_score)
     
     def predict(self, username):
         
@@ -40,7 +40,7 @@ class pdt_recommendation():
         top_5_pdt_id= list(top_20_pdt_sent.keys())[0:5]
         
         
-        top_5_pdt_name= [id_name.loc[id_name['id']==x , 'name_with_brand'].values[0] for x in top_5_pdt_id]
+        top_5_pdt_name= [id_name_sent.loc[id_name_sent['id']== x , 'name_with_brand'].values[0] for x in top_5_pdt_id]
         
         
         return(top_5_pdt_name)
