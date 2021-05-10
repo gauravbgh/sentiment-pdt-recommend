@@ -1,60 +1,3 @@
-import re # for regular expressions
-import nltk
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem.porter import PorterStemmer
-from spellchecker import SpellChecker
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-import pickle
-
-#nltk.download('punkt')
-#nltk.download('stopwords')
-
-words_removed= ['collect', 'part', 'promote', 'review', 'really', 'product']
-
-stemmer = PorterStemmer()
-
-spell = SpellChecker()
-
-with open('models/pickle_model.pkl', 'rb') as file:
-    model = pickle.load(file)
-    
-with open('models/tf-idf.pkl', 'rb') as file:
-    tf_idf = pickle.load(file)
-    
-
-class get_sentiment():
-    
-    def __init__(self):
-        
-        return None
-    
-    def clean_review(self, review_text):
-        review_text = re.sub(r"http\S+", "", review_text)                         ## remove the urls
-        review_text = re.sub("[^a-zA-Z]", " ", review_text)                       ## remove numbers and puncuation
-        review_text = str(review_text).lower()                                    ## converting into lower case
-        review_text = word_tokenize(review_text)                                  ## tokenization
-        review_text = [i for i in review_text if len(i)>2]                        ## remove the words having length less than 2
-        review_text = [i for i in review_text if i not in stopwords.words('english')]  ## remove stop words
-        review_text = [i for i in review_text if i not in words_removed]
-        review_text = [stemmer.stem(i) for i in review_text]                           ## stemming 
-        review_text = [spell.correction(i) for i in review_text]                       ## spell correction
-        review_text = ' '.join(review_text)
-        
-        return(review_text)
-    
-    def sentiment (self, review_text):
-        
-        review_text = self.clean_review(review_text)
-        
-        X = tf_idf.transform([review_text])
-        
-        y= model.predict(X)
-        
-        return(int(y))
-        
-
-        
 import pandas as pd
 import numpy as np
 import random
@@ -62,11 +5,9 @@ import random
 item_based_reco = pd.read_csv('Dataset/item_based_reco.csv')
 item_based_reco.set_index('reviews_username', inplace=True)
 
-dataset = pd.read_csv('Dataset/sample30.csv')
+id_name_sent= pd.read_csv('Dataset/id_name_sentiment.csv')
 
-id_name= pd.read_csv('Dataset/id_name.csv')
-
-class pdt_recommendation(get_sentiment):
+class pdt_recommendation():
     
     def __init__(self):
         
@@ -83,18 +24,9 @@ class pdt_recommendation(get_sentiment):
     
     def pdt_overall_sentiment(self, pdt_id): ##takes a pdt id as input serach the reviews and give the sentiment_score
         
-        filt_df= dataset.loc[dataset['id']== pdt_id, ['reviews_title', 'reviews_text']]
-        filt_df['merge']= filt_df['reviews_title']+ str(' ')+ filt_df['reviews_text']
-        all_reviews = list(filt_df['merge'])
+        sentiment_score= id_name_sent.loc[id_name_sent['id']== pdt_id, 'overall_sentiment'].values[0]
         
-        if len(all_reviews)>300:
-            all_reviews= random.sample(all_reviews, 300)
-        
-        #print(len(all_reviews))
-        
-        sentiment_score= sum([self.sentiment(str(review)) for review in all_reviews])
-        
-        return (round(sentiment_score/len(all_reviews),2))
+        return sentiment_score
     
     def predict(self, username):
         
@@ -113,5 +45,4 @@ class pdt_recommendation(get_sentiment):
         
         return(top_5_pdt_name)
             
-
         
