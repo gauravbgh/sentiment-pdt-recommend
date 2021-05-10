@@ -7,8 +7,8 @@ from spellchecker import SpellChecker
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 import pickle
 
-nltk.download('punkt')
-nltk.download('stopwords')
+#nltk.download('punkt')
+#nltk.download('stopwords')
 
 words_removed= ['collect', 'part', 'promote', 'review', 'really', 'product']
 
