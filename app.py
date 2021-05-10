@@ -23,4 +23,5 @@ def predict():
 
 
 if __name__ == '__main__':
-    app.run()
+    print('*** App Started ***')
+    app.run(debug=True)
